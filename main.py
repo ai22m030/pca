@@ -1,9 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from mpl_toolkits.mplot3d import Axes3D
 from sklearn import decomposition
-from sklearn import datasets
 from sklearn import preprocessing
 
 # import the iris dataset:
@@ -12,22 +10,12 @@ from sklearn import preprocessing
 # 150 samples
 beans = pd.read_csv('Dry_Bean.csv')
 
-iris = datasets.load_iris()
-b = beans.iloc[0:, 0:4].to_numpy()
 bt = beans.Class.to_numpy()
 le = preprocessing.LabelEncoder()
 le.fit(bt)
-bt = le.transform(bt)
 
-print(le.classes_)
-
-# X = iris.data
-# y = iris.target
-X = b
-y = bt
-fig = plt.figure(1, figsize=(8, 8))
-# ax = fig.add_subplot(projection='3d')
-# ax = Axes3D(fig, rect=[0, 0, .95, 1], elev=48, azim=134)
+X = beans.iloc[0:, 0:4].to_numpy()
+y = le.transform(bt)
 nrComponents = 4
 pca = decomposition.PCA(n_components=nrComponents, svd_solver='full')  # set up the pca class
 pca.fit(X)  # fit the data
@@ -37,7 +25,7 @@ fig, axes = plt.subplots(nrows=nrComponents, ncols=1)
 for i in range(0, nrComponents):
     a = axes[i].scatter(X[:, i], X[:, (i + 1) % nrComponents], c=y, cmap=plt.cm.Set1)
     axes[i].set_title("PCA[" + str(i) + "] vs PCA[" + str(i + 1) + "]")
-    axes[i].legend(a.legend_elements()[0], le.classes_[i])
+    axes[i].legend(a.legend_elements()[0], le.classes_)
 
 x = np.arange(1, nrComponents + 1)  # 1 to 4 for components
 print(pca.explained_variance_ratio_)  # how much the eigenvalues cover
@@ -47,7 +35,8 @@ plt.xlabel("principal components")
 plt.ylabel("explained variance ratio")
 
 fig, axes = plt.subplots(nrows=nrComponents, ncols=1, figsize=(8, 9),
-                         sharey=True, sharex=True)
+                         sharey="all", sharex="all")
+
 fs = 9
 axes[0].bar(x, pca.components_[0])  # loadings for PC1
 axes[0].set_title("loadings (components) of PC1", fontsize=fs)
@@ -58,5 +47,6 @@ axes[2].set_title("loadings (components) of PC3", fontsize=fs)
 axes[3].bar(x, pca.components_[3])
 axes[3].set_title("loadings (components) of PC4", fontsize=fs)
 axes[3].set_xticks(x)
+axes[3].set_xticklabels(['Area', 'Perimeter', 'MajorAxisLength', 'MinorAxisLength'])
 
 plt.show()
